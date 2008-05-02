@@ -285,7 +285,7 @@ int test_elliptic(int d1, int d2, int d3, int d4, int count)
 
 	i = 0;
 	while (i < count) {
-		if (lijst[i][3] + lijst[i][4] > 3) return(0);
+		if (lijst[i][2] + lijst[i][3] > 3) return(0);
 		i++;
 	}
 	return(1);
@@ -347,8 +347,9 @@ int main()
 		if (flag2) {
 			flag1 = test_elliptic(d1, d2, d3, d4, count);
 			if (flag1) {
-				printf("[%d, %d, %d, %d, %d]\n",
-						d1, d2, d3, d4, degree);
+				printf("%d %d %d %d %d %d %d %d %d %d\n",
+				d1, d2, d3, d4, degree, nrf, dimaut,
+				pg, h11, totaal);
 			}
 		}		
 	}
