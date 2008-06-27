@@ -231,7 +231,7 @@ int main()
 	int i, j, count, d1, d2, d3, d4, up_to_degree;
 
 	do {
-		i = scanf("%d %d %d %d %d\n",
+		i = scanf("%d %d %d %d %d",
 			&d1, &d2, &d3, &d4, &up_to_degree);
 		j = 0;
 		while (j <= up_to_degree) {
