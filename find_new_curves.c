@@ -7,7 +7,7 @@
 
 /* really dumb. */
 #define MAX	500
-#define MAX_g	11
+#define MAX_g	21
 #define MAX_pg	11
 
 int storage=0;
@@ -248,7 +248,7 @@ void list_double_covers()
 
 int main(void )
 {
-	list_double_covers();
+	list_curves();
 
 	return(0);
 }
