@@ -7,7 +7,7 @@
 
 /* really dumb. */
 #define MAX	500
-#define MAX_g	11
+#define MAX_g	21
 #define MAX_pg	11
 
 int storage=0;
@@ -36,7 +36,7 @@ void my_alloc(void )
 
 /* Returns the number of monomials in degree degree, and sets lijst
  * equal to the list of them.*/
-int count_sum(int d1, int d2, int d3, int degree, int save)
+int count_sum(int d1, int d2, int d3, int degree, int save, int max)
 {
 	int len,a1,a2;
 	
@@ -48,12 +48,13 @@ int count_sum(int d1, int d2, int d3, int degree, int save)
 			if((degree - (a1*d1+a2*d2)) % d3 == 0) {
 				if (save) {
 					if (len == storage) my_alloc();
-						lijst[len][0] = a1;
-						lijst[len][1] = a2;
-						lijst[len][2] = (degree - 
+					lijst[len][0] = a1;
+					lijst[len][1] = a2;
+					lijst[len][2] = (degree - 
 							(a1*d1+a2*d2)) / d3;
 				}
 				len++;
+				if ((max > 0) && (len > max)) return(len);
 			}
 			a2++;
 		}
@@ -144,14 +145,14 @@ int hilbert_function(int d1, int d2, int d3, int d, int i)
 
 	if (i < 0) return(0);
 
-	phi = count_sum(d1,d2,d3,i,0);
-	if (i >= d-d1) phi -= count_sum(d1,d2,d3,i-d+d1,0);
-	if (i >= d-d2) phi -= count_sum(d1,d2,d3,i-d+d2,0);
-	if (i >= d-d3) phi -= count_sum(d1,d2,d3,i-d+d3,0); 
-	if (i >= 2*d-d1-d2) phi += count_sum(d1,d2,d3,i-2*d+d1+d2,0);
-	if (i >= 2*d-d1-d3) phi += count_sum(d1,d2,d3,i-2*d+d1+d3,0);
-	if (i >= 2*d-d2-d3) phi += count_sum(d1,d2,d3,i-2*d+d2+d3,0);
-	if (i >= 3*d-d1-d2-d3) phi -= count_sum(d1,d2,d3,i-3*d+d1+d2+d3,0);
+	phi = count_sum(d1,d2,d3,i,0,0);
+	if (i >= d-d1) phi -= count_sum(d1,d2,d3,i-d+d1,0,0);
+	if (i >= d-d2) phi -= count_sum(d1,d2,d3,i-d+d2,0,0);
+	if (i >= d-d3) phi -= count_sum(d1,d2,d3,i-d+d3,0,0); 
+	if (i >= 2*d-d1-d2) phi += count_sum(d1,d2,d3,i-2*d+d1+d2,0,0);
+	if (i >= 2*d-d1-d3) phi += count_sum(d1,d2,d3,i-2*d+d1+d3,0,0);
+	if (i >= 2*d-d2-d3) phi += count_sum(d1,d2,d3,i-2*d+d2+d3,0,0);
+	if (i >= 3*d-d1-d2-d3) phi -= count_sum(d1,d2,d3,i-3*d+d1+d2+d3,0,0);
 	return(phi);
 }
 
@@ -162,34 +163,34 @@ int dim_aut(int d1, int d2, int d3)
 {
 	int totaal;
 	totaal = 0;
-	totaal = totaal + count_sum(d1,d2,d3,d1,0);
-	totaal = totaal + count_sum(d1,d2,d3,d2,0);
-	totaal = totaal + count_sum(d1,d2,d3,d3,0);
+	totaal = totaal + count_sum(d1,d2,d3,d1,0,0);
+	totaal = totaal + count_sum(d1,d2,d3,d2,0,0);
+	totaal = totaal + count_sum(d1,d2,d3,d3,0,0);
 	return(totaal);
 }
 
 void list_curves()
 {
-	int count,d1,d2,d3,degree,g;
+	int count, d1, d2, d3, degree, g;
 
 	printf("d1 d2 d3 d #f dim_aut g.\n");
 	d1 = 1;
-	while (d1 <= MAX) {
+	while (d1 <= 30) {
 	  d2 = d1;
-	  while (d2 <= MAX) {
+	  while (d2 <= 40) {
 	    d3 = d2;
-	    while (d3 <= MAX) {
-	      if (well_formed(d1,d2,d3)) {
-		degree = d1+d2+d3;
-		while (degree <= MAX) {
-		  g = count_sum(d1, d2, d3, degree-d1-d2-d3, 0);
+	    while (d3 <= 500) {
+	      if (well_formed(d1, d2, d3)) {
+		degree = d1 + d2 + d3;
+		while (degree <= 2000) {
+		  g = count_sum(d1, d2, d3, degree - d1 - d2 - d3, 0, MAX_g);
 		  if (g < MAX_g) {
-		    count = count_sum(d1,d2,d3,degree,1);
+		    count = count_sum(d1, d2, d3, degree, 1, 0);
 		    if (d_suitable(count)) {
-		        printf("%d %d %d %d %d ",d1,d2,d3,degree,count);
-		        count = dim_aut(d1,d2,d3);
-		        printf("%d ",count);
-		        printf("%d\n",g);
+		        printf("%d %d %d %d %d ", d1, d2, d3, degree, count);
+		        count = dim_aut(d1, d2, d3);
+		        printf("%d ", count);
+		        printf("%d\n", g);
 		    }
 		  }
 		  degree++;
@@ -222,7 +223,7 @@ void list_double_covers()
 		  i = (degree/2)-d1-d2-d3;
 		  pg = hilbert_function(d1,d2,d3,degree,i);
 		  if (pg < MAX_pg) {
-		    count = count_sum(d1, d2, d3, degree,1);
+		    count = count_sum(d1, d2, d3, degree,1,0);
 		    if (d_suitable(count)) {
 		      printf("%d %d %d %d %d ",d1,d2,d3,degree,count);
 		      count = dim_aut(d1,d2,d3);
@@ -248,7 +249,7 @@ void list_double_covers()
 
 int main(void )
 {
-	list_double_covers();
+	list_curves();
 
 	return(0);
 }
